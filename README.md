@@ -12,7 +12,7 @@ Production managers and technicians would like to view the state of machines rem
 
 <b>a. Programming language</b> used: Python<br>
 <b>b. Libraries used:</b> random, time<br>
-<p>These libraries are used to simulate unpredictable machine behaviour by slowing down the output such that simulation looks more realistic.</p><br>
+These libraries are used to simulate unpredictable machine behaviour by slowing down the output such that simulation looks more realistic.<br>
 
 <b>c. Method Solving Approach:</b> Subject, Observer, Machine and Employee are the four classes made:<br>
 <b>1. Subject:</b><br>
