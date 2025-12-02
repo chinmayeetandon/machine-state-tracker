@@ -16,10 +16,10 @@ These libraries are used to simulate unpredictable machine behaviour by slowing 
 
 <b>c. Method Solving Approach:</b> Subject, Observer, Machine and Employee are the four classes made:<br>
 <b>1. Subject:</b><br>
-<p>This is the base class. As per the assessment, machines are the subjects where name represents the name of machine, state represents the state of the machine and observers is the list of all the observation registered to the machine.</p><br>
+This is the base class. As per the assessment, machines are the subjects where name represents the name of machine, state represents the state of the machine and observers is the list of all the observation registered to the machine.<br>
 <b>2. Machine:</b><br>
-<p>It can be referred as a subclass of Subject class whose state changes during production cycles.</p><br>
+It can be referred as a subclass of Subject class whose state changes during production cycles.<br>
 <b>3. Observer:</b><br>
-<p>It is a base class for observers that wants to receive an update from the subject. It only stores a name and requires a sub-class to implement update method.</p><br>
+It is a base class for observers that wants to receive an update from the subject. It only stores a name and requires a sub-class to implement update method.<br>
 <b>4. Employee:</b><br>
-<p>It is a subclass of the observer class that receives real-time notifications when the state of a subject changes. It overrides the update method to print useful information.</p><br>
+It is a subclass of the observer class that receives real-time notifications when the state of a subject changes. It overrides the update method to print useful information.<br>
