@@ -8,11 +8,11 @@ IDLE: The machine is waiting for work.<br>
 STARVED: There is no material available for the machine to complete its work.<br>
 Production managers and technicians would like to view the state of machines remotely in real-time, to ensure that production is running smoothly.</p>
 
-# Solution:
+## Solution:
 
-a. Programming language used: Python
-b. Libraries used: random, time
-   These libraries are used to simulate unpredictable machine behaviour by slowing down the output such that simulation looks more realistic.
+<b>a. Programming language</b> used: Python<br><br>
+<b>b. Libraries used:</b> random, time<br><br>
+These libraries are used to simulate unpredictable machine behaviour by slowing down the output such that simulation looks more realistic.
 
-c. Subject, Observer, Machine and Employee are the four classes made:
-   1. 
+<b>c. Method Solving Approach:</b> Subject, Observer, Machine and Employee are the four classes made:<br>
+<b>1. Subject:</b>
