@@ -10,9 +10,9 @@ Production managers and technicians would like to view the state of machines rem
 
 ## Solution:
 
-<b>a. Programming language</b> used: Python<br><br>
+<b>a. Programming language</b> used: Python<br>
 <b>b. Libraries used:</b> random, time<br>
-<p>These libraries are used to simulate unpredictable machine behaviour by slowing down the output such that simulation looks more realistic.</p><br><br>
+<p>These libraries are used to simulate unpredictable machine behaviour by slowing down the output such that simulation looks more realistic.</p><br>
 
 <b>c. Method Solving Approach:</b> Subject, Observer, Machine and Employee are the four classes made:<br>
 <b>1. Subject:</b><br>
@@ -22,4 +22,4 @@ Production managers and technicians would like to view the state of machines rem
 <b>3. Observer:</b><br>
 <p>It is a base class for observers that wants to receive an update from the subject. It only stores a name and requires a sub-class to implement update method.</p><br>
 <b>4. Employee:</b><br>
-<p>It is a subclass of the observer class that receives real-time notifications when the state of a subject changes. It overrides the update method to print useful information.</p><br><br>
+<p>It is a subclass of the observer class that receives real-time notifications when the state of a subject changes. It overrides the update method to print useful information.</p><br>
