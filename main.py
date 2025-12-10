@@ -1,32 +1,20 @@
-"""
-    Assessment 1 Task 1: Observer Pattern
-    Employee Name: Chinmayee Tandon
-    Employee ID: HAYS2525
-"""
-
-# Importing libraries
-import random
-import time
+from flask import Flask, request, jsonify
 
 
 class Subject:
     def __init__(self, name):
-        """Initialising """
         self.name = name
         self.state = None
         self.observers = []
 
     def attach(self, observer):
-        """Register an observer."""
         self.observers.append(observer)
 
     def setState(self, new_state):
-        """Update state and notify observers."""
         self.state = new_state
         self.notifyAllObservers()
 
     def notifyAllObservers(self):
-        """Notify all observers."""
         for obs in self.observers:
             obs.update(self.state, self.name)
 
@@ -36,73 +24,87 @@ class Observer:
         self.name = name
 
     def update(self, state, from_machine):
-        """Abstract method; overridden by Employee.
-        from_machine is the variable used because from is a defined keyword in Python"""
         pass
 
 
 class Machine(Subject):
-    def __init__(self, name):
-        super().__init__(name)
-
-    def run_cycle(self):
-        """Randomly assigning a state to simulate a production machine."""
-        value = random.randint(1, 3)
-
-        match value:
-            case 1:
-                self.setState("PRODUCING")
-            case 2:
-                self.setState("IDLE")
-            case 3:
-                self.setState("STARVED")
-            case _:
-                self.setState("UNKNOWN")
+    pass
 
 
 class Employee(Observer):
     def __init__(self, name, role):
         super().__init__(name)
         self.role = role
+        self.notifications = []
 
-    def update(self, state, from_machine):
-        """Output machine updates as per requirement."""
-        print(
-            f"[UPDATE] Employee: {self.name} | Role: {self.role}\n"
-            f"Machine '{from_machine}' changed to state: {state}\n"
-        )
+    def update(self, state, machine_name):
+        msg = f"{self.name} ({self.role}) notified -> {machine_name} is now {state}"
+        self.notifications.append(msg)
+
+app = Flask(__name__)
+
+machines = {}
+employees = {}
 
 
-def main():
-    # Creating employee instances
-    tech = Employee("Clayson", "Technician")
-    manager = Employee("Matt", "Manager")
 
-    # Creating machine instances
-    m1 = Machine("Panasonic SPI")
-    m2 = Machine("AOI")
-    m3 = Machine("BOI")
+@app.route("/machine/create", methods=["POST"])
+def create_machine():
+    data = request.json
+    name = data["name"]
 
-    # Attach employees to machines
-    m1.attach(tech)  # Only technician watches Machine 1
-    m2.attach(manager)  # Only manager watches Machine 2
-    m3.attach(tech)  # Both watch Machine 3
-    m3.attach(manager)
+    machines[name] = Machine(name)
+    return jsonify({"msg": f"Machine '{name}' created."})
 
-    print("\n===== Production Line Simulation Started =====\n")
 
-    # Limiting to 5 cycles
-    for cycle in range(5):
-        print(f"----- Cycle {cycle + 1} -----")
-        for machine in [m1, m2, m3]:
-            machine.run_cycle()
-            time.sleep(1)
+@app.route("/employee/create", methods=["POST"])
+def create_employee():
+    data = request.json
+    name = data["name"]
+    role = data["role"]
 
-        # Pausing before next cycle
-        time.sleep(1)
+    employees[name] = Employee(name, role)
+    return jsonify({"msg": f"Employee '{name}' created."})
 
-    print("===== Simulation Ended =====")
+
+@app.route("/machine/attach", methods=["POST"])
+def attach_employee():
+    data = request.json
+    machine_name = data["machine"]
+    employee_name = data["employee"]
+
+    machine = machines.get(machine_name)
+    employee = employees.get(employee_name)
+
+    if not machine or not employee:
+        return jsonify({"error": "Machine or Employee not found"}), 404
+
+    machine.attach(employee)
+    return jsonify({"msg": f"Employee '{employee_name}' attached to machine '{machine_name}'."})
+
+
+@app.route("/machine/state", methods=["POST"])
+def change_state():
+    data = request.json
+    machine_name = data["machine"]
+    new_state = data["state"]
+
+    machine = machines.get(machine_name)
+    if not machine:
+        return jsonify({"error": "Machine not found"}), 404
+
+    machine.setState(new_state)
+    return jsonify({"msg": f"{machine_name} updated to {new_state}."})
+
+
+@app.route("/employee/notifications/<name>", methods=["GET"])
+def get_notifications(name):
+    employee = employees.get(name)
+    if not employee:
+        return jsonify({"error": "Employee not found"}), 404
+
+    return jsonify({"notifications": employee.notifications})
 
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
