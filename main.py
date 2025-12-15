@@ -1,109 +1,92 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request, render_template
 
 
 class Subject:
-    def __init__(self, name):
-        self.name = name
-        self.state = None
+    def __init__(self):
+        self.state = "IDLE"
         self.observers = []
 
     def attach(self, observer):
         self.observers.append(observer)
 
-    def setState(self, new_state):
-        self.state = new_state
-        self.notifyAllObservers()
+    def setState(self, state):
+        self.state = state
+        self.notifyObservers()
 
-    def notifyAllObservers(self):
+    def notifyObservers(self):
         for obs in self.observers:
             obs.update(self.state, self.name)
 
 
-class Observer:
+class Machine(Subject):
     def __init__(self, name):
+        super().__init__()
         self.name = name
 
+
+class Observer:
     def update(self, state, from_machine):
         pass
 
 
-class Machine(Subject):
-    pass
+class Dashboard(Observer):
+    def __init__(self):
+        self.machine_states = {}
 
+    def update(self, state, from_machine):
+        self.machine_states[from_machine] = state
 
-class Employee(Observer):
-    def __init__(self, name, role):
-        super().__init__(name)
-        self.role = role
-        self.notifications = []
-
-    def update(self, state, machine_name):
-        msg = f"{self.name} ({self.role}) notified -> {machine_name} is now {state}"
-        self.notifications.append(msg)
 
 app = Flask(__name__)
 
-machines = {}
-employees = {}
+
+@app.route("/")
+def index():
+    return render_template("dashboard.html")
 
 
+machine_a = Machine("AOI")
+machine_b = Machine("BOI")
+machine_c = Machine("Panasonic SPI")
 
-@app.route("/machine/create", methods=["POST"])
-def create_machine():
-    data = request.json
-    name = data["name"]
+machines = [machine_a, machine_b, machine_c]
 
-    machines[name] = Machine(name)
-    return jsonify({"msg": f"Machine '{name}' created."})
+dashboard = Dashboard()
 
-
-@app.route("/employee/create", methods=["POST"])
-def create_employee():
-    data = request.json
-    name = data["name"]
-    role = data["role"]
-
-    employees[name] = Employee(name, role)
-    return jsonify({"msg": f"Employee '{name}' created."})
+for m in machines:
+    m.attach(dashboard)
+    m.setState("IDLE")
 
 
-@app.route("/machine/attach", methods=["POST"])
-def attach_employee():
-    data = request.json
-    machine_name = data["machine"]
-    employee_name = data["employee"]
-
-    machine = machines.get(machine_name)
-    employee = employees.get(employee_name)
-
-    if not machine or not employee:
-        return jsonify({"error": "Machine or Employee not found"}), 404
-
-    machine.attach(employee)
-    return jsonify({"msg": f"Employee '{employee_name}' attached to machine '{machine_name}'."})
+states = ["PRODUCING", "IDLE", "STARVED"]
 
 
-@app.route("/machine/state", methods=["POST"])
-def change_state():
-    data = request.json
+@app.route("/api/machines", methods=["GET"])
+def get_machine_states():
+    return jsonify(dashboard.machine_states)
+
+
+@app.route("/api/update", methods=["POST"])
+def update_machine_states():
+    data = request.get_json()
+
+    if not data or "machine" not in data or "state" not in data:
+        return jsonify({"error": "Please provide 'machine' and 'state'"}), 400
+
     machine_name = data["machine"]
     new_state = data["state"]
 
-    machine = machines.get(machine_name)
+    machine = next((m for m in machines if m.name == machine_name), None)
     if not machine:
-        return jsonify({"error": "Machine not found"}), 404
+        return jsonify({"error": f"Machine '{machine_name}' not found"}), 404
 
     machine.setState(new_state)
-    return jsonify({"msg": f"{machine_name} updated to {new_state}."})
 
+    return jsonify({
+        "message": f"Machine '{machine_name}' updated",
+        "states": dashboard.machine_states
+    })
 
-@app.route("/employee/notifications/<name>", methods=["GET"])
-def get_notifications(name):
-    employee = employees.get(name)
-    if not employee:
-        return jsonify({"error": "Employee not found"}), 404
-
-    return jsonify({"notifications": employee.notifications})
 
 
 if __name__ == "__main__":
